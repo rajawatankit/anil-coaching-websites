@@ -10,12 +10,18 @@ import {
   MapPin,
   Menu,
   Phone,
+  Send,
   Sprout,
   Star,
   Target,
   Trophy,
   Users,
+  X,
 } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import anilTeacherPhoto from "./assets/anil-singh-teacher.png";
+
+type EnrollAction = () => void;
 
 type Course = {
   title: string;
@@ -31,7 +37,7 @@ type Feature = {
 
 const courses: Course[] = [
   {
-    title: "1st-8th",
+    title: "1st-10th",
     detail: "All Subjects",
     icon: BookOpen,
     accent: "from-leaf to-emerald-600",
@@ -77,12 +83,12 @@ const navItems = ["Home", "Courses", "Features", "About", "Contact"];
 
 function Logo() {
   return (
-    <a href="#home" className="flex items-center gap-3">
-      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white shadow-lg ring-2 ring-gold/60">
-        <GraduationCap className="h-7 w-7 text-navy" />
+    <a href="#home" className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white shadow-lg ring-2 ring-gold/60 sm:h-12 sm:w-12">
+        <GraduationCap className="h-6 w-6 text-navy sm:h-7 sm:w-7" />
       </span>
-      <span className="leading-tight">
-        <span className="block text-lg font-black tracking-tight text-white sm:text-xl">
+      <span className="min-w-0 leading-tight">
+        <span className="block text-base font-black tracking-tight text-white sm:text-xl">
           Perfect Coaching
         </span>
         <span className="block text-xs font-bold uppercase tracking-[0.2em] text-gold">
@@ -93,10 +99,17 @@ function Logo() {
   );
 }
 
-function Header() {
+function Header({ onEnroll }: { onEnroll: EnrollAction }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const closeMenu = () => setIsMenuOpen(false);
+  const openEnroll = () => {
+    closeMenu();
+    onEnroll();
+  };
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy/90 text-white shadow-2xl shadow-navy/20 backdrop-blur-xl">
-      <nav className="section-shell flex h-20 items-center justify-between">
+      <nav className="section-shell flex h-[72px] items-center justify-between sm:h-20">
         <Logo />
         <div className="hidden items-center gap-8 lg:flex">
           {navItems.map((item) => (
@@ -110,20 +123,77 @@ function Header() {
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <a
-            href="tel:9977609249"
+          <button
+            type="button"
+            onClick={onEnroll}
             className="hidden rounded-full bg-gold px-5 py-3 text-sm font-black text-navy shadow-glow transition hover:-translate-y-0.5 hover:bg-white sm:inline-flex"
           >
             Enroll Now
-          </a>
+          </button>
           <button
-            className="grid h-11 w-11 place-items-center rounded-full border border-white/20 text-white lg:hidden"
-            aria-label="Open menu"
+            type="button"
+            className="grid h-11 w-11 place-items-center rounded-full border border-white/20 text-white transition hover:border-gold hover:text-gold lg:hidden"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-sidebar"
+            onClick={() => setIsMenuOpen((open) => !open)}
           >
-            <Menu className="h-5 w-5" />
+            {isMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </div>
       </nav>
+
+      <div
+        className={`fixed inset-0 top-[72px] bg-navy/60 backdrop-blur-sm transition-opacity duration-300 sm:top-20 lg:hidden ${
+          isMenuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        aria-hidden="true"
+        onClick={closeMenu}
+      />
+      <aside
+        id="mobile-sidebar"
+        className={`fixed right-0 top-[72px] h-[calc(100vh-72px)] w-[min(86vw,340px)] border-l border-white/10 bg-navy p-5 shadow-2xl transition-transform duration-300 sm:top-20 sm:h-[calc(100vh-80px)] lg:hidden ${
+          isMenuOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="flex h-full flex-col">
+          <div className="space-y-2">
+            {navItems.map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                onClick={closeMenu}
+                className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-base font-black text-white transition hover:border-gold hover:text-gold"
+              >
+                {item}
+                <ChevronRight className="h-5 w-5" />
+              </a>
+            ))}
+          </div>
+          <div className="mt-auto grid gap-3">
+            <button
+              type="button"
+              onClick={openEnroll}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-5 py-4 text-base font-black text-navy shadow-glow"
+            >
+              Enroll Now
+              <ChevronRight className="h-5 w-5" />
+            </button>
+            <a
+              href="tel:9977609249"
+              onClick={closeMenu}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-4 text-base font-black text-white"
+            >
+              <Phone className="h-5 w-5" />
+              Call Now
+            </a>
+          </div>
+        </div>
+      </aside>
     </header>
   );
 }
@@ -145,9 +215,15 @@ function HeroVisual() {
                 Classes
               </h3>
             </div>
-            <div className="grid h-24 w-24 shrink-0 place-items-center rounded-full border-4 border-gold bg-white text-center text-xs font-black uppercase text-navy shadow-glow">
-              Admissions
-              <span className="block text-2xl text-crimson">Open</span>
+            <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-2xl border-4 border-gold bg-white shadow-glow sm:h-32 sm:w-28">
+              <img
+                src={anilTeacherPhoto}
+                alt="Anil Singh, teacher at Perfect Coaching Classes"
+                className="h-full w-full object-cover object-[50%_20%]"
+              />
+              <div className="absolute inset-x-1 bottom-1 rounded-xl bg-navy/90 px-2 py-1 text-center text-[10px] font-black uppercase leading-tight text-gold">
+                Admissions Open
+              </div>
             </div>
           </div>
         </div>
@@ -193,43 +269,44 @@ function HeroVisual() {
   );
 }
 
-function Hero() {
+function Hero({ onEnroll }: { onEnroll: EnrollAction }) {
   return (
     <section
       id="home"
-      className="relative overflow-hidden bg-navy pb-20 pt-32 text-white sm:pt-36 lg:pb-28"
+      className="relative overflow-hidden bg-navy pb-16 pt-28 text-white sm:pb-20 sm:pt-36 lg:pb-28"
     >
       <div className="absolute inset-0 navy-grid opacity-70" />
       <div className="absolute -right-24 top-20 h-72 w-72 rounded-full bg-gold/20 blur-3xl" />
       <div className="absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-leaf/20 blur-3xl" />
 
-      <div className="section-shell relative grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="section-shell relative grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
         <div>
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/40 bg-white/10 px-4 py-2 text-sm font-bold text-gold backdrop-blur">
+          <div className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-gold/40 bg-white/10 px-4 py-2 text-xs font-bold text-gold backdrop-blur sm:mb-6 sm:text-sm">
             <Star className="h-4 w-4 fill-gold" />
-            Discipline Today, Excellence Tomorrow
+            <span className="min-w-0">Discipline Today, Excellence Tomorrow</span>
           </div>
-          <h1 className="max-w-3xl text-5xl font-black uppercase leading-[0.92] tracking-tight sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-3xl text-[2.75rem] font-black uppercase leading-[0.96] tracking-tight sm:text-6xl sm:leading-[0.92] lg:text-7xl">
             Perfect Coaching Classes
           </h1>
-          <p className="mt-5 text-2xl font-extrabold text-gold sm:text-3xl">
+          <p className="mt-5 text-[1.65rem] font-extrabold leading-tight text-gold sm:text-3xl">
             Strong Foundation, Bright Future
           </p>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-white/78">
+          <p className="mt-5 max-w-2xl text-base leading-8 text-white/78 sm:text-lg">
             Coaching for 1st-12th students with expert guidance, regular
             practice, concept clarity, and personal attention.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-            <a
-              href="#contact"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-7 py-4 text-base font-black text-navy shadow-glow transition hover:-translate-y-1 hover:bg-white"
+            <button
+              type="button"
+              onClick={onEnroll}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gold px-7 py-4 text-base font-black text-navy shadow-glow transition hover:-translate-y-1 hover:bg-white sm:w-auto"
             >
               Enroll Now
               <ChevronRight className="h-5 w-5" />
-            </a>
+            </button>
             <a
               href="tel:9977609249"
-              className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/30 bg-white/10 px-7 py-4 text-base font-black text-white backdrop-blur transition hover:-translate-y-1 hover:border-gold hover:text-gold"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/30 bg-white/10 px-7 py-4 text-base font-black text-white backdrop-blur transition hover:-translate-y-1 hover:border-gold hover:text-gold sm:w-auto"
             >
               <Phone className="h-5 w-5" />
               Call Now
@@ -260,24 +337,35 @@ function Courses() {
             return (
               <article
                 key={`${course.title}-${course.detail}`}
-                className="card-hover overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lift"
+                className="group relative min-h-[230px] overflow-hidden rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-white via-white to-slate-50 p-5 shadow-[0_18px_45px_rgba(6,26,54,0.10)] transition duration-300 hover:-translate-y-2 hover:border-gold/70 hover:shadow-[0_28px_65px_rgba(6,26,54,0.18)]"
               >
                 <div
-                  className={`h-3 bg-gradient-to-r ${course.accent}`}
+                  className={`absolute -right-10 -top-10 h-28 w-28 rounded-full bg-gradient-to-br ${course.accent} opacity-[0.12] blur-xl transition duration-300 group-hover:opacity-25`}
                   aria-hidden="true"
                 />
-                <div className="p-5">
-                  <div
-                    className={`mb-8 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${course.accent} text-white shadow-lg`}
-                  >
-                    <Icon className="h-7 w-7" />
+                <div
+                  className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent"
+                  aria-hidden="true"
+                />
+                <div className="relative flex h-full flex-col">
+                  <div className="flex items-start justify-between gap-4">
+                    <div
+                      className={`grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br ${course.accent} text-white shadow-[0_16px_35px_rgba(6,26,54,0.20)] ring-4 ring-white`}
+                    >
+                      <Icon className="h-8 w-8" />
+                    </div>
+                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">
+                      Course
+                    </span>
                   </div>
-                  <h3 className="text-2xl font-black text-navy">
+                  <div className="mt-auto pt-10">
+                    <h3 className="text-2xl font-black leading-tight text-navy">
                     {course.title}
-                  </h3>
-                  <p className="mt-1 text-lg font-extrabold uppercase text-slate-600">
-                    {course.detail}
-                  </p>
+                    </h3>
+                    <p className="mt-2 text-sm font-black uppercase tracking-[0.08em] text-slate-500">
+                      {course.detail}
+                    </p>
+                  </div>
                 </div>
               </article>
             );
@@ -365,17 +453,23 @@ function About() {
           </div>
         </div>
         <div className="rounded-[2rem] bg-navy p-6 text-white shadow-2xl">
-          <div className="rounded-[1.5rem] border border-white/15 bg-white/10 p-6">
-            <div className="mx-auto grid h-28 w-28 place-items-center rounded-full bg-white text-navy shadow-glow">
-              <GraduationCap className="h-16 w-16" />
+          <div className="overflow-hidden rounded-[1.5rem] border border-white/15 bg-white/10">
+            <div className="relative aspect-[4/5] bg-white">
+              <img
+                src={anilTeacherPhoto}
+                alt="Anil Singh professional teacher portrait"
+                className="h-full w-full object-cover object-[50%_18%]"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy via-navy/70 to-transparent p-6 pt-20">
+                <p className="text-sm font-black uppercase tracking-[0.25em] text-gold">
+                  Teacher Profile
+                </p>
+                <h3 className="mt-2 text-4xl font-black uppercase">
+                  Anil Singh
+                </h3>
+              </div>
             </div>
-            <div className="mt-6 text-center">
-              <p className="text-sm font-black uppercase tracking-[0.25em] text-gold">
-                Teacher Profile
-              </p>
-              <h3 className="mt-2 text-4xl font-black uppercase">
-                Anil Singh
-              </h3>
+            <div className="p-6">
               <div className="mt-6 grid gap-3 text-left">
                 {["B.Com, B.Tech", "4 Years Experience", "Result Oriented Approach"].map(
                   (item) => (
@@ -397,7 +491,7 @@ function About() {
   );
 }
 
-function AdmissionCta() {
+function AdmissionCta({ onEnroll }: { onEnroll: EnrollAction }) {
   return (
     <section className="bg-gold py-16">
       <div className="section-shell grid items-center gap-8 lg:grid-cols-[1fr_auto]">
@@ -413,6 +507,14 @@ function AdmissionCta() {
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+          <button
+            type="button"
+            onClick={onEnroll}
+            className="inline-flex items-center justify-center gap-3 rounded-full bg-crimson px-7 py-4 text-lg font-black text-white shadow-xl transition hover:-translate-y-1 hover:bg-navy"
+          >
+            <Send className="h-5 w-5" />
+            Admission Form
+          </button>
           <a
             href="tel:9977609249"
             className="inline-flex items-center justify-center gap-3 rounded-full bg-navy px-7 py-4 text-lg font-black text-white shadow-xl transition hover:-translate-y-1 hover:bg-crimson"
@@ -479,6 +581,161 @@ function Contact() {
   );
 }
 
+function EnrollmentModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const name = String(formData.get("name") || "").trim();
+    const phone = String(formData.get("phone") || "").trim();
+    const studentClass = String(formData.get("class") || "").trim();
+    const message = String(formData.get("message") || "").trim();
+
+    const enquiry = [
+      "Hello Perfect Coaching Classes,",
+      "I want to enroll a student.",
+      "",
+      `Name: ${name}`,
+      `Phone: ${phone}`,
+      `Class/Course: ${studentClass}`,
+      message ? `Message: ${message}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    window.open(
+      `https://wa.me/919977609249?text=${encodeURIComponent(enquiry)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+    onClose();
+  };
+
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[80] grid place-items-center bg-navy/70 px-4 py-6 backdrop-blur-md">
+      <button
+        type="button"
+        aria-label="Close enrollment form"
+        className="absolute inset-0 cursor-default"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-xl overflow-hidden rounded-[2rem] bg-white text-navy shadow-2xl">
+        <div className="bg-navy navy-grid p-6 text-white">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.25em] text-gold">
+                Admission Enquiry
+              </p>
+              <h2 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+                Enroll Now
+              </h2>
+            </div>
+            <button
+              type="button"
+              aria-label="Close enrollment form"
+              onClick={onClose}
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/20 text-white transition hover:border-gold hover:text-gold"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="grid gap-4 p-6">
+          <label className="grid gap-2">
+            <span className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">
+              Student Name
+            </span>
+            <input
+              name="name"
+              required
+              placeholder="Enter student name"
+              className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none transition focus:border-gold focus:bg-white"
+            />
+          </label>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">
+                Phone Number
+              </span>
+              <input
+                name="phone"
+                required
+                inputMode="tel"
+                pattern="[0-9+\-\s]{8,15}"
+                placeholder="9977609249"
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none transition focus:border-gold focus:bg-white"
+              />
+            </label>
+            <label className="grid gap-2">
+              <span className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">
+                Class/Course
+              </span>
+              <select
+                name="class"
+                required
+                defaultValue=""
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none transition focus:border-gold focus:bg-white"
+              >
+                <option value="" disabled>
+                  Select course
+                </option>
+                {courses.map((course) => (
+                  <option
+                    key={`${course.title}-modal`}
+                    value={`${course.title} ${course.detail}`}
+                  >
+                    {course.title} - {course.detail}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">
+              Message
+            </span>
+            <textarea
+              name="message"
+              rows={3}
+              placeholder="Preferred timing or any question"
+              className="resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-bold outline-none transition focus:border-gold focus:bg-white"
+            />
+          </label>
+
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-4 font-black text-navy shadow-glow transition hover:-translate-y-0.5 hover:bg-navy hover:text-white"
+            >
+              <Send className="h-5 w-5" />
+              Send Enquiry
+            </button>
+            <a
+              href="tel:9977609249"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 px-6 py-4 font-black text-navy transition hover:border-navy hover:bg-slate-50"
+            >
+              <Phone className="h-5 w-5" />
+              Call
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function Footer() {
   return (
     <footer className="bg-navy py-10 text-white">
@@ -499,16 +756,22 @@ function Footer() {
 }
 
 export default function App() {
+  const [isEnrollOpen, setIsEnrollOpen] = useState(false);
+
   return (
     <main>
-      <Header />
-      <Hero />
+      <Header onEnroll={() => setIsEnrollOpen(true)} />
+      <Hero onEnroll={() => setIsEnrollOpen(true)} />
       <Courses />
       <Features />
       <About />
-      <AdmissionCta />
+      <AdmissionCta onEnroll={() => setIsEnrollOpen(true)} />
       <Contact />
       <Footer />
+      <EnrollmentModal
+        isOpen={isEnrollOpen}
+        onClose={() => setIsEnrollOpen(false)}
+      />
     </main>
   );
 }
